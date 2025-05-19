@@ -137,7 +137,7 @@ async function countMentions(channelId, token, targetId, weeksToAnalyze = 2) {
   return weeklyCounts;
 }
 
-async function countHereEveryoneMentions(channelId, token, weeksToAnalyze = 2) {
+async function countHereEveryoneMentions(channelId, token, targetId, weeksToAnalyze = 2) {
   const weeklyCounts = [];
   const endDate = moment();
 
@@ -184,6 +184,11 @@ async function countHereEveryoneMentions(channelId, token, weeksToAnalyze = 2) {
             )) {
               mentionCount++;
             }
+
+            // Check for user group mentions (<@subteam^ID>)
+            if (targetId.startsWith('S') && message.text && message.text.includes(`<!subteam^${targetId}>`)) {
+              mentionCount++;
+            }
           });
 
           // Handle pagination
@@ -220,7 +225,7 @@ async function main() {
     const weeksToAnalyze = 10;
     const totalCounts = await getWeeklyMessageCounts(channelId, token, weeksToAnalyze);
     const mentionCounts = await countMentions(channelId, token, mention, weeksToAnalyze);
-    const hereEveryoneCounts = await countHereEveryoneMentions(engChannelId, token, weeksToAnalyze);
+    const hereEveryoneCounts = await countHereEveryoneMentions(engChannelId, token, mention, weeksToAnalyze);
 
     console.table(totalCounts);
     console.table(mentionCounts);
