@@ -2,9 +2,26 @@ require('dotenv').config();
 const axios = require('axios');
 const moment = require('moment');
 
+const findClosestMonday = () => {
+  const now = moment();
+  const dayOfWeek = now.day();
+
+  if (dayOfWeek === 1) {
+    // If today is Monday, return today
+    return now;
+  } else if (dayOfWeek === 0) {
+    // If today is Sunday, return next Monday
+    return moment(now).add(1, 'days').startOf('day');
+  } else if (dayOfWeek < 5) {
+    return moment(now).subtract(dayOfWeek - 1, 'days');
+  } else {
+    return moment(now).add(8 - dayOfWeek, 'days');
+  }
+};
+
 async function getWeeklyMessageCounts(channelId, token, weeksToAnalyze = 2) {
   const weeklyCounts = [];
-  const endDate = moment();
+  const endDate = findClosestMonday();
   
   for (let i = 0; i < weeksToAnalyze; i++) {
     // Calculate timestamps for this week
@@ -61,7 +78,7 @@ async function getWeeklyMessageCounts(channelId, token, weeksToAnalyze = 2) {
 
 async function countMentions(channelId, token, targetId, weeksToAnalyze = 2) {
   const weeklyCounts = [];
-  const endDate = moment();
+  const endDate = findClosestMonday();
   
   for (let i = 0; i < weeksToAnalyze; i++) {
     // Calculate start and end timestamps for this week
@@ -139,7 +156,7 @@ async function countMentions(channelId, token, targetId, weeksToAnalyze = 2) {
 
 async function countHereEveryoneMentions(channelId, token, targetId, weeksToAnalyze = 2) {
   const weeklyCounts = [];
-  const endDate = moment();
+  const endDate = findClosestMonday();
 
   for (let i = 0; i < weeksToAnalyze; i++) {
     // Calculate start and end timestamps for this week
